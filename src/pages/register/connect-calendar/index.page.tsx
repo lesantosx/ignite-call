@@ -5,14 +5,16 @@ import { Container, Header } from '../styles';
 import { AuthError, ConnectBox, ConnectItem } from './styles';
 import { useRouter } from 'next/router';
 
-export default function Register() {
+export default function ConnectCalendar() {
   const session = useSession(); 
   const router = useRouter();
 
   const isSignedIn = session.status === 'authenticated';
   const hasAuthError = !!router.query.error;  
 
-  async function handleNavigateToNextStep() {}
+  async function handleNavigateToNextStep() {
+    await router.push('/register/time-intervals');
+  }
 
   async function handleConnectCalendar() {
     await signIn('google');
@@ -58,7 +60,7 @@ export default function Register() {
           </AuthError>
         )}
 
-        <Button type="submit" disabled={!isSignedIn}>
+        <Button type="submit" disabled={!isSignedIn} onClick={handleNavigateToNextStep}>
           Próximo passo
           <ArrowRight />
         </Button>
