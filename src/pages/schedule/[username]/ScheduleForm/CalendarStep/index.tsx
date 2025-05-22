@@ -23,7 +23,7 @@ export function CalendarStep() {
   const router = useRouter();
 
   const isDataSelected = !!selectedDate;
-   const username = String(router.query.username);
+  const username = String(router.query.username);
   
   const weekDay = selectedDate ? dayjs(selectedDate).format('dddd') : null;
   const describedDate = selectedDate ? dayjs(selectedDate).format('DD[ de ]MMMM') : null;
