@@ -1,14 +1,16 @@
+import dayjs from 'dayjs';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
 import { Button, Text, TextArea, TextInput } from '@ignite-ui/react';
+import { api } from '@/src/lib/axios';
+import { useRouter } from 'next/router';
+import { useForm } from 'react-hook-form';
 import { CalendarBlank, Clock } from 'phosphor-react';
 import { ConfirmForm, FormActions, FormError, FormHeader } from './styles';
 
 const confirmFormSchema = z.object({
   name: z.string()
-    .min(3, { message: 'O nome precisa ter pelo menos 3 letras' })
-    .regex(/^[a-zA-Z]+$/, { message: 'O nome só pode conter letras' }),
+    .min(3, { message: 'O nome precisa ter pelo menos 3 letras' }),
   email: z.string()
     .email({ message: 'Digite um e-mail válido' }),
   observations: z.string().nullable(),
@@ -16,7 +18,12 @@ const confirmFormSchema = z.object({
 
 type ConfirmFormData = z.infer<typeof confirmFormSchema>;
 
-export function ConfirmStep() {
+interface ConfirmStepProps {
+  schedulingDate: Date;
+  onCancelConfirmation: () => void;
+}
+
+export function ConfirmStep({ schedulingDate, onCancelConfirmation }: ConfirmStepProps) {
   const {
     register,
     handleSubmit,
@@ -25,20 +32,39 @@ export function ConfirmStep() {
     resolver: zodResolver(confirmFormSchema),
   });
 
-  function handleConfirmScheduling(data: ConfirmFormData) {
-    console.log(data);
+  const router = useRouter();
+  const username = String(router.query.username);
+
+  async function handleConfirmScheduling(data: ConfirmFormData) {
+    const {
+      name,
+      email,
+      observations,
+    } = data;
+
+    await api.post(`/users/${username}/schedule`, {
+      name,
+      email,
+      observations,
+      date: schedulingDate
+    });
+
+    onCancelConfirmation();
   }
+
+  const describedDate = dayjs(schedulingDate).format('DD[ de ]MMMM[ de ]YYYY');
+  const describedTime = dayjs(schedulingDate).format('HH:mm[h]');
 
   return (
     <ConfirmForm as="form" onSubmit={handleSubmit(handleConfirmScheduling)}>
       <FormHeader>
         <Text>
           <CalendarBlank />
-          20 de Fevereiro de 2023
+          {describedDate}
         </Text>
         <Text>
           <Clock />
-          18:00h
+          {describedTime}
         </Text>
       </FormHeader>
 
@@ -66,7 +92,13 @@ export function ConfirmStep() {
       </label>
 
       <FormActions>
-        <Button type="button" variant="tertiary">Cancelar</Button>
+        <Button
+          type="button"
+          variant="tertiary"
+          onClick={onCancelConfirmation}
+        >
+          Cancelar
+        </Button>
         <Button type="submit" disabled={isSubmitting}>
           Confirmar agendamento
         </Button>
