@@ -133,7 +133,7 @@ export function PrismaAdapter(
       }
     },
 
-    async linkAccount(accoun: AdapterAccount) {
+    async linkAccount(account: AdapterAccount) {
       await prisma.account.create({
         data: {
           user_id: account.userId,
