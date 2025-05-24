@@ -36,30 +36,30 @@ const timeIntervalsFormSchema = z.object({
       }),
     )
     .length(7)
-    .transform((intervals) => intervals.filter((interval) => interval.enabled))
-    .refine((intervals) => intervals.length > 0, {
+    .refine((intervals) => intervals.some((interval) => interval.enabled), {
       message: 'Você precisa selecionar pelo menos um dia da semana!',
     })
-    .transform((intervals) => {
-      return intervals.map((interval) => {
-        return {
-          weekDay: interval.weekDay,
-          startTimeInMinutes: convertTimeStringToMinutes(interval.startTime),
-          endTimeInMinutes: convertTimeStringToMinutes(interval.endTime),
-        }
-      })
-    })
-    .refine((intervals) => {
-      return intervals.every((interval) =>
-        interval.endTimeInMinutes - 60 >= interval.startTimeInMinutes
-      )
-    }, {
-      message: 'O horário de término deve ser pelo menos 1h distante do início.',
-    }),
-})
+    .refine((intervals) =>
+      intervals.every((interval) => {
+        if (!interval.enabled) return true;
+        return (
+          convertTimeStringToMinutes(interval.endTime) - 60 >=
+          convertTimeStringToMinutes(interval.startTime)
+        );
+      }),
+      {
+        message: 'O horário de término deve ser pelo menos 1h distante do início.',
+      }
+    ),
+});
 
 type TimeIntervalsFormInput = z.input<typeof timeIntervalsFormSchema>;
-type TimeIntervalsFormOutput = z.output<typeof timeIntervalsFormSchema>;
+
+type TimeIntervalsFormOutput = Array<{
+  weekDay: number;
+  startTimeInMinutes: number;
+  endTimeInMinutes: number;
+}>;
 
 export default function TimeIntervals() {
   const {
@@ -94,12 +94,18 @@ export default function TimeIntervals() {
 
   const intervals = watch('intervals');
 
-  async function handleSetTimeIntervals(data: any) {
-    const { intervals } = data as TimeIntervalsFormOutput;
-    
+  async function handleSetTimeIntervals(data: TimeIntervalsFormInput) {
+    const intervals = data.intervals
+      .filter((interval) => interval.enabled)
+      .map((interval) => ({
+        weekDay: interval.weekDay,
+        startTimeInMinutes: convertTimeStringToMinutes(interval.startTime),
+        endTimeInMinutes: convertTimeStringToMinutes(interval.endTime),
+      }));
+
     await api.post('/users/time-intervals', {
       intervals,
-    })
+    });
 
     await router.push(`/register/update-profile`);
   }
@@ -146,6 +152,9 @@ export default function TimeIntervals() {
                       size="sm"
                       type="time"
                       step={60}
+                      crossOrigin={undefined}
+                      onPointerEnterCapture={undefined}
+                      onPointerLeaveCapture={undefined}
                       {...register(`intervals.${index}.startTime`)}
                       disabled={intervals[index].enabled === false}
                     />
@@ -153,6 +162,9 @@ export default function TimeIntervals() {
                       size="sm"
                       type="time"
                       step={60}
+                      crossOrigin={undefined}
+                      onPointerEnterCapture={undefined}
+                      onPointerLeaveCapture={undefined}
                       {...register(`intervals.${index}.endTime`)}
                       disabled={intervals[index].enabled === false}
                     />

@@ -70,7 +70,13 @@ export function ConfirmStep({ schedulingDate, onCancelConfirmation }: ConfirmSte
 
       <label>
         <Text size="sm">Nome completo</Text>
-        <TextInput placeholder="Seu nome" {...register('name')} />
+        <TextInput
+          placeholder="Seu nome"
+          crossOrigin={undefined}
+          onPointerEnterCapture={undefined}
+          onPointerLeaveCapture={undefined}
+          {...register('name')}
+        />
         {errors.name && (
           <FormError size="sm">
             {errors.name.message}
@@ -79,7 +85,14 @@ export function ConfirmStep({ schedulingDate, onCancelConfirmation }: ConfirmSte
       </label>
       <label>
         <Text size="sm">Endereço de e-mail</Text>
-        <TextInput type="email" placeholder="Seu e-mail" {...register('email')} />
+        <TextInput
+          type="email"
+          placeholder="Seu e-mail"
+          crossOrigin={undefined}
+          onPointerEnterCapture={undefined}
+          onPointerLeaveCapture={undefined}
+          {...register('email')}
+        />
         {errors.email && (
           <FormError size="sm">
             {errors.email.message}
