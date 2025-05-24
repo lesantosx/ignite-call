@@ -8,7 +8,7 @@ export function PrismaAdapter(
   res: NextApiResponse | NextPageContext['res'],
 ): Adapter {
   return {
-    async createUser(user: Omit<AdapterUser, 'id'>): Promise<AdapterUser> {
+    async createUser(user: AdapterUser) {
       const { '@ignitecall:userId': userIdOnCookies } = parseCookies({ req })
 
       if (!userIdOnCookies) {
