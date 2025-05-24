@@ -1,10 +1,5 @@
 {
   "extends": [
-    "@rocketseat/eslint-config/react",
-    "next"
-  ],
-  // "rules": {
-  //   "react-hooks/rules-of-hooks": "off",
-  //   "react-hooks/exhaustive-deps": "off"
-  // }
+    "@rocketseat/eslint-config/react"
+  ]
 }
